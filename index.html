@@ -57,35 +57,46 @@
         .draggable-item:active {
             cursor: grabbing;
         }
+
+        .flow-arrow {
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d1d5db;
+        }
+        
+        .flow-arrow::after {
+            content: '→';
+            font-size: 1.5rem;
+            line-height: 1;
+        }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center p-2">
 
-    <div class="w-full max-w-2xl aspect-4-3 p-6 bg-white rounded-xl shadow-lg flex flex-col items-center">
-        <!-- Question at the top center -->
-        <h1 class="text-xl sm:text-2xl font-semibold mb-4 text-center w-full">
-            Which of the following shows the correct order of the 5-step process of making an ethical decision?
-        </h1>
-        
-        <!-- Container for options and drop zones -->
-        <div class="flex flex-row w-full h-full justify-between items-start space-x-4 mb-4">
-            <!-- Draggable Options on the left -->
-            <div id="drag-container" class="space-y-2 w-1/2 overflow-y-auto pr-2">
-                <!-- Draggable items will be populated by JavaScript -->
-            </div>
-
-            <!-- Drop Zones on the right -->
-            <div id="drop-container" class="space-y-2 w-1/2 overflow-y-auto pl-2">
-                <!-- Drop zones will be populated by JavaScript -->
-            </div>
-        </div>
-        
-        <!-- Action Button at the bottom center -->
-        <div class="flex justify-center w-full mt-auto">
+    <div class="w-full max-w-4xl p-6 bg-white rounded-xl shadow-lg flex flex-col items-center">
+        <!-- Header: Title and Reset Button -->
+        <div class="flex justify-between items-start w-full mb-6">
+            <h1 class="text-xl sm:text-2xl font-semibold text-left">
+                Which of the following shows the correct order of the 5-step process of making an ethical decision?
+            </h1>
             <button id="reset-button" class="px-6 py-3 bg-blue-500 text-white font-bold rounded-full shadow-md transition-transform transform hover:scale-105 active:scale-95">
                 Reset
             </button>
         </div>
+        
+        <!-- Draggable Options in a row -->
+        <div id="drag-container" class="flex flex-wrap justify-center gap-4 mb-8 w-full">
+            <!-- Draggable items will be populated by JavaScript -->
+        </div>
+
+        <!-- Workflow Drop Zones -->
+        <div id="drop-container" class="flex flex-col sm:flex-row justify-center items-center flex-wrap gap-4 w-full">
+            <!-- Drop zones will be populated by JavaScript -->
+        </div>
+        
     </div>
 
     <!-- Floating Feedback Message -->
@@ -107,14 +118,6 @@
             'bg-red-500', 
             'bg-yellow-500'
         ];
-        
-        const TEXT_COLORS = [
-            'text-blue-500',
-            'text-green-500',
-            'text-purple-500',
-            'text-red-500',
-            'text-yellow-500'
-        ];
 
         const dropContainer = document.getElementById('drop-container');
         const dragContainer = document.getElementById('drag-container');
@@ -131,16 +134,23 @@
             return array;
         }
 
-        // Creates the drop zones with numbered placeholders
+        // Creates the drop zones as a workflow diagram
         function createDropZones() {
             dropContainer.innerHTML = '';
             STEPS_DATA.forEach((step, index) => {
                 const dropZone = document.createElement('div');
-                dropZone.classList.add('droppable-item', 'w-full', 'min-h-[3rem]', 'bg-gray-100', 'p-2', 'rounded-lg', 'border-2', 'border-dashed', 'border-gray-300', 'flex', 'items-center', 'text-gray-500');
+                dropZone.classList.add('droppable-item', 'w-full', 'sm:w-48', 'h-24', 'p-2', 'bg-gray-100', 'rounded-lg', 'border-2', 'border-dashed', 'border-gray-300', 'flex', 'items-center', 'justify-center', 'text-center', 'text-gray-500', 'shrink-0');
                 dropZone.dataset.step = step.id;
-                // Added the placeholder text back as requested
-                dropZone.innerHTML = `<span class="font-bold mr-2 text-xl text-gray-500">${index + 1}.</span> <span class="text-lg">Drop a step here...</span>`;
+                dropZone.innerHTML = `<span class="font-bold text-xl">${index + 1}.</span> <span class="text-sm ml-2">Drop a step here...</span>`;
+                
                 dropContainer.appendChild(dropZone);
+
+                // Add an arrow for all but the last step
+                if (index < STEPS_DATA.length - 1) {
+                    const arrow = document.createElement('div');
+                    arrow.classList.add('flow-arrow', 'hidden', 'sm:flex');
+                    dropContainer.appendChild(arrow);
+                }
             });
         }
 
@@ -152,7 +162,8 @@
                 const draggableItem = document.createElement('div');
                 draggableItem.classList.add(
                     'draggable-item', 
-                    'w-full', 
+                    'w-[200px]', /* Standardized width */
+                    'h-24', /* Standardized height */
                     'p-3', 
                     'text-white', 
                     'font-medium',
@@ -164,7 +175,11 @@
                     'cursor-grab', 
                     'transition-transform', 
                     'transform', 
-                    'hover:scale-105'
+                    'hover:scale-105',
+                    'flex', /* Added flex to center content */
+                    'items-center',
+                    'justify-center',
+                    'text-center'
                 );
                 draggableItem.textContent = step.text;
                 draggableItem.draggable = true;
@@ -249,6 +264,10 @@
                     }
                     
                     if (droppedItem.id === zone.dataset.step) {
+                        const placeholder = zone.querySelector('span.text-sm');
+                        if (placeholder) {
+                            placeholder.remove();
+                        }
                         zone.appendChild(droppedItem);
                         droppedItem.draggable = false;
                         droppedItem.classList.remove('cursor-grab', 'hover:scale-105');
@@ -272,6 +291,10 @@
                             return;
                         }
                         if (droppedItem.id === zone.dataset.step) {
+                            const placeholder = zone.querySelector('span.text-sm');
+                            if (placeholder) {
+                                placeholder.remove();
+                            }
                             zone.appendChild(droppedItem);
                             droppedItem.draggable = false;
                             droppedItem.classList.remove('cursor-grab', 'hover:scale-105');
