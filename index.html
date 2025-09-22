@@ -99,7 +99,6 @@
         <!-- Workflow Drop Zones -->
         <div class="flex flex-col items-center w-full">
             <div id="drop-container-top-row" class="flex flex-row justify-center items-center flex-wrap gap-1 sm:gap-4 w-full"></div>
-            
             <div id="drop-container-bottom-row" class="flex flex-row justify-center items-center flex-wrap gap-1 sm:gap-4 w-full mt-4"></div>
         </div>
     </div>
@@ -271,7 +270,10 @@
                                 const placeholder = dropZone.querySelector('.placeholder-text');
                                 if (number) number.remove();
                                 if (placeholder) placeholder.remove();
-                                
+
+                                draggedElement.classList.remove('w-20', 'h-16', 'sm:w-[200px]', 'sm:h-24');
+                                draggedElement.classList.add('w-full', 'h-full');
+
                                 dropZone.appendChild(draggedElement);
                                 draggedElement.draggable = false;
                                 draggedElement.classList.remove('cursor-grab', 'hover:scale-105');
@@ -315,7 +317,10 @@
                         const placeholder = zone.querySelector('.placeholder-text');
                         if (number) number.remove();
                         if (placeholder) placeholder.remove();
-
+                        
+                        droppedItem.classList.remove('w-20', 'h-16', 'sm:w-[200px]', 'sm:h-24');
+                        droppedItem.classList.add('w-full', 'h-full');
+                        
                         zone.appendChild(droppedItem);
                         droppedItem.draggable = false;
                         droppedItem.classList.remove('cursor-grab', 'hover:scale-105');
