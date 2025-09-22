@@ -3,396 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ethical Decision Making Process</title>
+    <title>Ethical Decision-Making</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .drag-item {
-            cursor: grab;
-            transition: all 0.3s ease;
-            touch-action: none;
-            user-select: none;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
         }
-        .drag-item:active {
-            cursor: grabbing;
-            transform: rotate(5deg) scale(1.05);
+
+        /* Enforces a 4:3 aspect ratio on the main container */
+        .aspect-4-3 {
+            aspect-ratio: 4 / 3;
         }
-        .drag-item.dragging {
-            opacity: 0.7;
-            transform: rotate(5deg) scale(1.05);
-            z-index: 1000;
+
+        .droppable-item.highlight {
+            background-color: #d1fae5;
+            border-color: #10b981;
+        }
+
+        .feedback-message {
             position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 1rem 2rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
             pointer-events: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        .drop-zone {
-            min-height: 60px;
-            transition: all 0.3s ease;
-        }
-        .drop-zone.drag-over {
-            background-color: #dbeafe;
-            border-color: #3b82f6;
-            transform: scale(1.02);
-        }
+
         .feedback-correct {
-            animation: bounce 0.6s ease-in-out;
+            background-color: #10b981;
+            color: white;
         }
+
         .feedback-incorrect {
-            animation: shake 0.5s ease-in-out;
+            background-color: #ef4444;
+            color: white;
         }
-        @keyframes bounce {
-            0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
-            40%, 43% { transform: translate3d(0,-15px,0); }
-            70% { transform: translate3d(0,-7px,0); }
-            90% { transform: translate3d(0,-2px,0); }
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-        
-        /* Mobile-specific styles */
-        @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
-            .container {
-                width: 100%;
-                max-width: 100%;
-                height: auto;
-                min-height: 100vh;
-            }
+
+        .draggable-item:active {
+            cursor: grabbing;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4 md:p-6">
-    <div class="container w-full max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-4 md:p-6 flex flex-col min-h-screen md:min-h-0 md:h-auto">
-        <div class="text-center mb-4 md:mb-6">
-            <h1 class="text-xl md:text-2xl font-bold text-gray-800 mb-2">Ethical Decision Making Process</h1>
-            <p class="text-xs md:text-sm text-gray-600">Drag the steps to arrange them in the correct order (1-5)</p>
-            <!-- Feedback Area -->
-            <div id="feedback" class="fixed top-16 md:top-20 left-1/2 transform -translate-x-1/2 z-50"></div>
+<body class="flex flex-col items-center justify-center p-2">
+
+    <div class="w-full max-w-2xl aspect-4-3 p-6 bg-white rounded-xl shadow-lg flex flex-col items-center">
+        <!-- Question at the top center -->
+        <h1 class="text-xl sm:text-2xl font-semibold mb-4 text-center w-full">
+            Which of the following shows the correct order of the 5-step process of making an ethical decision?
+        </h1>
+        
+        <!-- Container for options and drop zones -->
+        <div class="flex flex-row w-full h-full justify-between items-start space-x-4 mb-4">
+            <!-- Draggable Options on the left -->
+            <div id="drag-container" class="space-y-2 w-1/2 overflow-y-auto pr-2">
+                <!-- Draggable items will be populated by JavaScript -->
+            </div>
+
+            <!-- Drop Zones on the right -->
+            <div id="drop-container" class="space-y-2 w-1/2 overflow-y-auto pl-2">
+                <!-- Drop zones will be populated by JavaScript -->
+            </div>
         </div>
         
-        <div class="flex-1 flex flex-col md:flex-row gap-4 md:gap-6">
-            <!-- Drop Zones - Top on mobile, Left on desktop -->
-            <div class="flex-1 flex flex-col gap-2 md:gap-3 mb-6 md:mb-0">
-                <h2 class="text-base md:text-lg font-semibold text-gray-800 mb-2 text-center">Correct Order:</h2>
-                
-                <div class="flex items-center gap-2 md:gap-3">
-                    <div class="w-6 h-6 md:w-8 md:h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm">1</div>
-                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-2 md:p-3 bg-gray-50 min-h-[50px] md:min-h-[60px] flex items-center" data-position="1">
-                        <p class="text-gray-400 text-xs md:text-sm text-center w-full">Drop first step here</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center gap-2 md:gap-3">
-                    <div class="w-6 h-6 md:w-8 md:h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm">2</div>
-                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-2 md:p-3 bg-gray-50 min-h-[50px] md:min-h-[60px] flex items-center" data-position="2">
-                        <p class="text-gray-400 text-xs md:text-sm text-center w-full">Drop second step here</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center gap-2 md:gap-3">
-                    <div class="w-6 h-6 md:w-8 md:h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm">3</div>
-                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-2 md:p-3 bg-gray-50 min-h-[50px] md:min-h-[60px] flex items-center" data-position="3">
-                        <p class="text-gray-400 text-xs md:text-sm text-center w-full">Drop third step here</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center gap-2 md:gap-3">
-                    <div class="w-6 h-6 md:w-8 md:h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm">4</div>
-                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-2 md:p-3 bg-gray-50 min-h-[50px] md:min-h-[60px] flex items-center" data-position="4">
-                        <p class="text-gray-400 text-xs md:text-sm text-center w-full">Drop fourth step here</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center gap-2 md:gap-3">
-                    <div class="w-6 h-6 md:w-8 md:h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm">5</div>
-                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-2 md:p-3 bg-gray-50 min-h-[50px] md:min-h-[60px] flex items-center" data-position="5">
-                        <p class="text-gray-400 text-xs md:text-sm text-center w-full">Drop fifth step here</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Draggable Items - Bottom on mobile, Right on desktop -->
-            <div class="flex-1 flex flex-col">
-                <h2 class="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-4 text-center">Steps to Arrange:</h2>
-                <div class="flex flex-col gap-2 md:gap-3" id="draggable-container">
-                    <div class="drag-item bg-gradient-to-r from-green-400 to-green-500 text-white p-2 md:p-3 rounded-lg shadow-md" draggable="true" data-step="1">
-                        <p class="font-medium text-xs">Have a clear understanding of the situation</p>
-                    </div>
-                    
-                    <div class="drag-item bg-gradient-to-r from-purple-400 to-purple-500 text-white p-2 md:p-3 rounded-lg shadow-md" draggable="true" data-step="2">
-                        <p class="font-medium text-xs">Identify the stakeholders</p>
-                    </div>
-                    
-                    <div class="drag-item bg-gradient-to-r from-orange-400 to-orange-500 text-white p-2 md:p-3 rounded-lg shadow-md" draggable="true" data-step="3">
-                        <p class="font-medium text-xs">Prioritise the key responsibilities</p>
-                    </div>
-                    
-                    <div class="drag-item bg-gradient-to-r from-red-400 to-red-500 text-white p-2 md:p-3 rounded-lg shadow-md" draggable="true" data-step="4">
-                        <p class="font-medium text-xs">Identify a course of action</p>
-                    </div>
-                    
-                    <div class="drag-item bg-gradient-to-r from-indigo-400 to-indigo-500 text-white p-2 md:p-3 rounded-lg shadow-md" draggable="true" data-step="5">
-                        <p class="font-medium text-xs">Act on it and review</p>
-                    </div>
-                </div>
-                
-                <!-- Reset Button -->
-                <div class="text-center mt-4 md:mt-6">
-                    <button id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-colors text-xs">
-                        Reset Activity
-                    </button>
-                </div>
-            </div>
+        <!-- Action Button at the bottom center -->
+        <div class="flex justify-center w-full mt-auto">
+            <button id="reset-button" class="px-6 py-3 bg-blue-500 text-white font-bold rounded-full shadow-md transition-transform transform hover:scale-105 active:scale-95">
+                Reset
+            </button>
         </div>
-
     </div>
 
+    <!-- Floating Feedback Message -->
+    <div id="feedback" class="feedback-message"></div>
+
     <script>
+        const STEPS_DATA = [
+            { id: 'step-1', text: 'Have a clear understanding of the situation' },
+            { id: 'step-2', text: 'Identify the stakeholders' },
+            { id: 'step-3', text: 'Prioritise the key responsibilities' },
+            { id: 'step-4', text: 'Identify a course of action' },
+            { id: 'step-5', text: 'Act on it and review' },
+        ];
+
+        const COLORS = [
+            'bg-blue-500', 
+            'bg-green-500', 
+            'bg-purple-500', 
+            'bg-red-500', 
+            'bg-yellow-500'
+        ];
+        
+        const TEXT_COLORS = [
+            'text-blue-500',
+            'text-green-500',
+            'text-purple-500',
+            'text-red-500',
+            'text-yellow-500'
+        ];
+
+        const dropContainer = document.getElementById('drop-container');
+        const dragContainer = document.getElementById('drag-container');
+        const resetButton = document.getElementById('reset-button');
+        const feedbackElement = document.getElementById('feedback');
         let draggedElement = null;
-        let correctPlacements = 0;
-        let touchStartPos = { x: 0, y: 0 };
-        let isDragging = false;
-        let dragClone = null;
 
-        // Randomize the order of draggable items on page load
-        function randomizeSteps() {
-            const container = document.getElementById('draggable-container');
-            const items = Array.from(container.children);
-            
-            // Shuffle array using Fisher-Yates algorithm
-            for (let i = items.length - 1; i > 0; i--) {
+        // Function to shuffle an array (Fisher-Yates shuffle algorithm)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [items[i], items[j]] = [items[j], items[i]];
+                [array[i], array[j]] = [array[j], array[i]];
             }
-            
-            // Re-append items in randomized order
-            items.forEach(item => container.appendChild(item));
+            return array;
         }
 
-        // Initialize randomization on page load
-        randomizeSteps();
-
-        // Add drag event listeners to all draggable items
-        document.querySelectorAll('.drag-item').forEach(item => {
-            // Mouse events
-            item.addEventListener('dragstart', handleDragStart);
-            item.addEventListener('dragend', handleDragEnd);
-            
-            // Touch events for mobile
-            item.addEventListener('touchstart', handleTouchStart, { passive: false });
-            item.addEventListener('touchmove', handleTouchMove, { passive: false });
-            item.addEventListener('touchend', handleTouchEnd, { passive: false });
-        });
-
-        // Add drop event listeners to all drop zones
-        document.querySelectorAll('.drop-zone').forEach(zone => {
-            zone.addEventListener('dragover', handleDragOver);
-            zone.addEventListener('dragenter', handleDragEnter);
-            zone.addEventListener('dragleave', handleDragLeave);
-            zone.addEventListener('drop', handleDrop);
-        });
-
-        // Touch event handlers
-        function handleTouchStart(e) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            touchStartPos = { x: touch.clientX, y: touch.clientY };
-            draggedElement = this;
-            isDragging = false;
+        // Creates the drop zones with numbered placeholders
+        function createDropZones() {
+            dropContainer.innerHTML = '';
+            STEPS_DATA.forEach((step, index) => {
+                const dropZone = document.createElement('div');
+                dropZone.classList.add('droppable-item', 'w-full', 'min-h-[3rem]', 'bg-gray-100', 'p-2', 'rounded-lg', 'border-2', 'border-dashed', 'border-gray-300', 'flex', 'items-center', 'text-gray-500');
+                dropZone.dataset.step = step.id;
+                // Added the placeholder text back as requested
+                dropZone.innerHTML = `<span class="font-bold mr-2 text-xl text-gray-500">${index + 1}.</span> <span class="text-lg">Drop a step here...</span>`;
+                dropContainer.appendChild(dropZone);
+            });
         }
 
-        function handleTouchMove(e) {
-            e.preventDefault();
-            if (!draggedElement) return;
+        // Creates the draggable items and shuffles their order
+        function createDraggableItems() {
+            dragContainer.innerHTML = '';
+            const shuffledSteps = shuffleArray([...STEPS_DATA]);
+            shuffledSteps.forEach((step, index) => {
+                const draggableItem = document.createElement('div');
+                draggableItem.classList.add(
+                    'draggable-item', 
+                    'w-full', 
+                    'p-3', 
+                    'text-white', 
+                    'font-medium',
+                    COLORS[index % COLORS.length], 
+                    'rounded-lg', 
+                    'shadow-md', 
+                    'border', 
+                    'border-gray-200', 
+                    'cursor-grab', 
+                    'transition-transform', 
+                    'transform', 
+                    'hover:scale-105'
+                );
+                draggableItem.textContent = step.text;
+                draggableItem.draggable = true;
+                draggableItem.id = step.id;
+                dragContainer.appendChild(draggableItem);
+            });
+        }
 
-            const touch = e.touches[0];
-            const deltaX = touch.clientX - touchStartPos.x;
-            const deltaY = touch.clientY - touchStartPos.y;
+        // Displays a floating feedback message
+        function showFeedback(message, isCorrect) {
+            feedbackElement.textContent = message;
+            feedbackElement.classList.remove('feedback-correct', 'feedback-incorrect');
+            feedbackElement.classList.add(isCorrect ? 'feedback-correct' : 'feedback-incorrect');
+            feedbackElement.style.opacity = '1';
 
-            // Start dragging if moved enough
-            if (!isDragging && (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10)) {
-                isDragging = true;
-                
-                // Create a clone for visual feedback
-                dragClone = draggedElement.cloneNode(true);
-                dragClone.classList.add('dragging');
-                dragClone.style.left = touch.clientX - draggedElement.offsetWidth / 2 + 'px';
-                dragClone.style.top = touch.clientY - draggedElement.offsetHeight / 2 + 'px';
-                dragClone.style.width = draggedElement.offsetWidth + 'px';
-                document.body.appendChild(dragClone);
-                
-                draggedElement.style.opacity = '0.5';
+            setTimeout(() => {
+                feedbackElement.style.opacity = '0';
+            }, 1000);
+        }
+
+        // Checks if all items are in the correct drop zones
+        function checkCompletion() {
+            const allDropZones = document.querySelectorAll('.droppable-item');
+            const allCorrect = Array.from(allDropZones).every(zone => {
+                const child = zone.querySelector('.draggable-item');
+                return child && child.id === zone.dataset.step;
+            });
+            if (allCorrect) {
+                showFeedback("Congratulations! You've got it!", true);
             }
+        }
 
-            if (isDragging && dragClone) {
-                dragClone.style.left = touch.clientX - draggedElement.offsetWidth / 2 + 'px';
-                dragClone.style.top = touch.clientY - draggedElement.offsetHeight / 2 + 'px';
-                
-                // Check for drop zone hover
-                const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-                const dropZone = elementBelow?.closest('.drop-zone');
-                
-                // Remove previous hover states
-                document.querySelectorAll('.drop-zone').forEach(zone => {
-                    zone.classList.remove('drag-over');
+        // Sets up the drag-and-drop and touch event listeners
+        function setupDragAndDrop() {
+            document.querySelectorAll('.draggable-item').forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    draggedElement = e.target;
+                    e.dataTransfer.setData('text/plain', e.target.id);
+                    e.target.style.opacity = '0.5';
+                });
+
+                item.addEventListener('dragend', (e) => {
+                    e.target.style.opacity = '1';
+                });
+
+                // Touch event listeners for mobile devices
+                item.addEventListener('touchstart', (e) => {
+                    draggedElement = e.target;
+                    e.target.style.opacity = '0.5';
+                });
+
+                item.addEventListener('touchend', (e) => {
+                    e.target.style.opacity = '1';
+                });
+
+                item.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                });
+            });
+
+            document.querySelectorAll('.droppable-item').forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (!zone.querySelector('.draggable-item')) {
+                        zone.classList.add('highlight');
+                    }
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('highlight');
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('highlight');
+                    const droppedItemId = e.dataTransfer.getData('text/plain');
+                    const droppedItem = document.getElementById(droppedItemId);
+
+                    if (zone.querySelector('.draggable-item')) { 
+                        showFeedback("Try again!", false);
+                        return;
+                    }
+                    
+                    if (droppedItem.id === zone.dataset.step) {
+                        zone.appendChild(droppedItem);
+                        droppedItem.draggable = false;
+                        droppedItem.classList.remove('cursor-grab', 'hover:scale-105');
+                        droppedItem.classList.add('cursor-default');
+                        showFeedback("You are right!", true);
+                        checkCompletion();
+                    } else {
+                        showFeedback("Try again!", false);
+                    }
                 });
                 
-                // Add hover state to current drop zone
-                if (dropZone) {
-                    dropZone.classList.add('drag-over');
-                }
-            }
-        }
+                // Touch event listeners for mobile devices
+                zone.addEventListener('touchend', (e) => {
+                    const droppedItem = draggedElement;
+                    const touch = e.changedTouches[0];
+                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
 
-        function handleTouchEnd(e) {
-            e.preventDefault();
-            if (!draggedElement) return;
-
-            if (isDragging && dragClone) {
-                const touch = e.changedTouches[0];
-                const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-                const dropZone = elementBelow?.closest('.drop-zone');
-                
-                if (dropZone) {
-                    handleDropLogic(dropZone);
-                }
-                
-                // Clean up
-                document.body.removeChild(dragClone);
-                dragClone = null;
-            }
-
-            // Reset states
-            draggedElement.style.opacity = '1';
-            document.querySelectorAll('.drop-zone').forEach(zone => {
-                zone.classList.remove('drag-over');
-            });
-            
-            draggedElement = null;
-            isDragging = false;
-        }
-
-        // Mouse event handlers
-        function handleDragStart(e) {
-            draggedElement = this;
-            this.style.opacity = '0.5';
-        }
-
-        function handleDragEnd(e) {
-            this.style.opacity = '1';
-            draggedElement = null;
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-        }
-
-        function handleDragEnter(e) {
-            e.preventDefault();
-            this.classList.add('drag-over');
-        }
-
-        function handleDragLeave(e) {
-            this.classList.remove('drag-over');
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            this.classList.remove('drag-over');
-            handleDropLogic(this);
-        }
-
-        function handleDropLogic(dropZone) {
-            if (draggedElement) {
-                const dropPosition = parseInt(dropZone.dataset.position);
-                const draggedStep = parseInt(draggedElement.dataset.step);
-
-                // Check if it's already occupied
-                if (dropZone.querySelector('.drag-item')) {
-                    showFeedback("This position is already filled! Try another spot.", false);
-                    return;
-                }
-
-                // Check if correct placement
-                if (dropPosition === draggedStep) {
-                    // Correct placement
-                    dropZone.innerHTML = '';
-                    dropZone.appendChild(draggedElement);
-                    draggedElement.style.margin = '0';
-                    correctPlacements++;
-                    
-                    showFeedback("You are right! ✅", true);
-                    
-                    // Check if all steps are correctly placed
-                    if (correctPlacements === 5) {
-                        setTimeout(() => {
-                            showFeedback("🎉 Excellent! You've correctly arranged all steps of the ethical decision-making process!", true);
-                        }, 1000);
+                    if (dropTarget && dropTarget.closest('.droppable-item') === zone) {
+                        if (zone.querySelector('.draggable-item')) {
+                            showFeedback("Try again!", false);
+                            return;
+                        }
+                        if (droppedItem.id === zone.dataset.step) {
+                            zone.appendChild(droppedItem);
+                            droppedItem.draggable = false;
+                            droppedItem.classList.remove('cursor-grab', 'hover:scale-105');
+                            droppedItem.classList.add('cursor-default');
+                            showFeedback("You are right!", true);
+                            checkCompletion();
+                        } else {
+                            showFeedback("Try again!", false);
+                        }
                     }
-                } else {
-                    // Incorrect placement
-                    showFeedback("Try again! 🤔", false);
-                }
-            }
+                });
+            });
         }
 
-        function showFeedback(message, isCorrect) {
-            const feedback = document.getElementById('feedback');
-            feedback.innerHTML = `<div class="inline-block px-6 py-3 rounded-lg font-medium text-lg ${isCorrect ? 'bg-green-100 text-green-800 feedback-correct' : 'bg-red-100 text-red-800 feedback-incorrect'}">${message}</div>`;
-            
-            // Clear feedback after 3 seconds
-            setTimeout(() => {
-                feedback.innerHTML = '';
-            }, 3000);
+        function init() {
+            createDropZones();
+            createDraggableItems();
+            setupDragAndDrop();
         }
 
-        // Reset functionality
-        document.getElementById('reset-btn').addEventListener('click', function() {
-            correctPlacements = 0;
-            
-            // Move all items back to the draggable container
-            document.querySelectorAll('.drag-item').forEach(item => {
-                document.getElementById('draggable-container').appendChild(item);
-                item.style.margin = '';
-                item.style.opacity = '1';
-                
-                // Re-add event listeners for touch support
-                item.addEventListener('touchstart', handleTouchStart, { passive: false });
-                item.addEventListener('touchmove', handleTouchMove, { passive: false });
-                item.addEventListener('touchend', handleTouchEnd, { passive: false });
-            });
-            
-            // Reset all drop zones
-            document.querySelectorAll('.drop-zone').forEach(zone => {
-                const position = zone.dataset.position;
-                zone.innerHTML = `<p class="text-gray-400 text-xs md:text-sm text-center">Drop the ${getOrdinal(position)} step here</p>`;
-                zone.classList.remove('drag-over');
-            });
-            
-            // Clear feedback
-            document.getElementById('feedback').innerHTML = '';
-            
-            // Clean up any remaining drag clone
-            if (dragClone) {
-                document.body.removeChild(dragClone);
-                dragClone = null;
-            }
-            
-            // Reset drag states
-            draggedElement = null;
-            isDragging = false;
-            
-            // Randomize the order again
-            randomizeSteps();
+        resetButton.addEventListener('click', () => {
+            init();
         });
 
-        function getOrdinal(num) {
-            const ordinals = ['', 'first', 'second', 'third', 'fourth', 'fifth'];
-            return ordinals[num] || num;
-        }
+        // Initialize the activity on page load
+        window.onload = init;
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98304311b1b0f8ef',t:'MTc1ODUyNzk1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
