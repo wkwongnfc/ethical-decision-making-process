@@ -72,6 +72,10 @@
             font-size: 1.5rem;
             line-height: 1;
         }
+
+        .flow-arrow-down::after {
+            content: '↓';
+        }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center p-2">
@@ -79,10 +83,10 @@
     <div class="w-full sm:max-w-4xl p-6 bg-white rounded-xl shadow-lg flex flex-col items-center aspect-4-3">
         <!-- Header: Title and Reset Button -->
         <div class="flex justify-between items-start w-full mb-6">
-            <h1 class="text-xs sm:text-2xl font-semibold text-left">
+            <h1 class="text-xs sm:text-2xl font-semibold text-left mr-4">
                 Which of the following shows the correct order of the 5-step process of making an ethical decision?
             </h1>
-            <button id="reset-button" class="px-2 py-1 sm:px-6 sm:py-3 bg-blue-500 text-white font-bold rounded-full shadow-md transition-transform transform hover:scale-105 active:scale-95 text-xs">
+            <button id="reset-button" class="px-2 py-1 sm:px-6 sm:py-3 bg-blue-500 text-white font-bold rounded-full shadow-md transition-transform transform hover:scale-105 active:scale-95 text-xs shrink-0">
                 Reset
             </button>
         </div>
@@ -141,22 +145,22 @@
             dropContainerBottom.innerHTML = '';
             STEPS_DATA.forEach((step, index) => {
                 const dropZone = document.createElement('div');
-                dropZone.classList.add('droppable-item', 'w-16', 'h-16', 'sm:w-48', 'sm:h-24', 'p-1', 'sm:p-2', 'bg-gray-100', 'rounded-lg', 'border-2', 'border-dashed', 'border-gray-300', 'flex', 'items-center', 'justify-center', 'text-center', 'text-gray-500', 'shrink-0');
+                dropZone.classList.add('droppable-item', 'w-20', 'h-16', 'sm:w-[200px]', 'sm:h-24', 'p-1', 'sm:p-2', 'bg-gray-100', 'rounded-lg', 'border-2', 'border-dashed', 'border-gray-300', 'flex', 'items-center', 'justify-center', 'text-center', 'text-gray-500', 'shrink-0');
                 dropZone.dataset.step = step.id;
-                dropZone.innerHTML = `<span class="font-bold text-xs sm:text-xl">${index + 1}.</span> <span class="text-[8px] sm:text-sm ml-1 sm:ml-2">Drop a step here...</span>`;
+                dropZone.innerHTML = `<span class="font-bold text-xs sm:text-xl">${index + 1}.</span> <span class="placeholder-text text-[8px] sm:text-sm ml-1 sm:ml-2">Drop a step here...</span>`;
                 
                 if (index < 3) {
                     dropContainerTop.appendChild(dropZone);
                     if (index < 2) {
                         const arrow = document.createElement('div');
-                        arrow.classList.add('flow-arrow', 'flex', 'hidden', 'sm:flex');
+                        arrow.classList.add('flow-arrow', 'flex');
                         dropContainerTop.appendChild(arrow);
                     }
                 } else {
                     dropContainerBottom.appendChild(dropZone);
                     if (index < STEPS_DATA.length - 1) {
                         const arrow = document.createElement('div');
-                        arrow.classList.add('flow-arrow', 'flex', 'hidden', 'sm:flex');
+                        arrow.classList.add('flow-arrow', 'flex');
                         dropContainerBottom.appendChild(arrow);
                     }
                 }
@@ -262,10 +266,11 @@
                             }
                             
                             if (draggedElement.id === dropZone.dataset.step) {
-                                const placeholder = dropZone.querySelector('span.text-\\[8px\\], span.text-sm');
-                                if (placeholder) {
-                                    placeholder.remove();
-                                }
+                                const number = dropZone.querySelector('.font-bold');
+                                const placeholder = dropZone.querySelector('.placeholder-text');
+                                if (number) number.remove();
+                                if (placeholder) placeholder.remove();
+                                
                                 dropZone.appendChild(draggedElement);
                                 draggedElement.draggable = false;
                                 draggedElement.classList.remove('cursor-grab', 'hover:scale-105');
@@ -305,10 +310,11 @@
                     }
                     
                     if (droppedItem.id === zone.dataset.step) {
-                        const placeholder = zone.querySelector('span.text-\\[8px\\], span.text-sm');
-                        if (placeholder) {
-                            placeholder.remove();
-                        }
+                        const number = zone.querySelector('.font-bold');
+                        const placeholder = zone.querySelector('.placeholder-text');
+                        if (number) number.remove();
+                        if (placeholder) placeholder.remove();
+
                         zone.appendChild(droppedItem);
                         droppedItem.draggable = false;
                         droppedItem.classList.remove('cursor-grab', 'hover:scale-105');
