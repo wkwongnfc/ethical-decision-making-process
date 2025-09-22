@@ -9,13 +9,22 @@
         .drag-item {
             cursor: grab;
             transition: all 0.3s ease;
+            touch-action: none;
+            user-select: none;
         }
         .drag-item:active {
             cursor: grabbing;
             transform: rotate(5deg) scale(1.05);
         }
+        .drag-item.dragging {
+            opacity: 0.7;
+            transform: rotate(5deg) scale(1.05);
+            z-index: 1000;
+            position: fixed;
+            pointer-events: none;
+        }
         .drop-zone {
-            min-height: 80px;
+            min-height: 60px;
             transition: all 0.3s ease;
         }
         .drop-zone.drag-over {
@@ -40,88 +49,101 @@
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            .container {
+                width: 100%;
+                max-width: 100%;
+                height: auto;
+                min-height: 100vh;
+            }
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-6 flex items-center justify-center">
-    <div class="w-[800px] h-[700px] bg-white rounded-xl shadow-lg p-6 flex flex-col">
-        <div class="text-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800 mb-2">Ethical Decision Making Process</h1>
-            <p class="text-sm text-gray-600">Drag the steps from the right to arrange them in the correct order (1-5)</p>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4 md:p-6">
+    <div class="container w-full max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-4 md:p-6 flex flex-col min-h-screen md:min-h-0 md:h-auto">
+        <div class="text-center mb-4 md:mb-6">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-800 mb-2">Ethical Decision Making Process</h1>
+            <p class="text-xs md:text-sm text-gray-600">Drag the steps to arrange them in the correct order (1-5)</p>
             <!-- Feedback Area -->
-            <div id="feedback" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50"></div>
+            <div id="feedback" class="fixed top-16 md:top-20 left-1/2 transform -translate-x-1/2 z-50"></div>
         </div>
         
-        <div class="flex-1 flex gap-6">
-            <!-- Drop Zones - Left Side -->
-            <div class="flex-1 flex flex-col gap-3">
-                <h2 class="text-lg font-semibold text-gray-800 mb-2 text-center">Correct Order:</h2>
+        <div class="flex-1 flex flex-col md:flex-row gap-4 md:gap-6">
+            <!-- Drop Zones - Top on mobile, Left on desktop -->
+            <div class="flex-1 flex flex-col gap-2 md:gap-3 mb-6 md:mb-0">
+                <h2 class="text-base md:text-lg font-semibold text-gray-800 mb-2 text-center">Correct Order:</h2>
                 
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
-                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-3 bg-gray-50 min-h-[60px] flex items-center" data-position="1">
-                        <p class="text-gray-400 text-sm text-center w-full">Drop first step here</p>
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="w-6 h-6 md:w-8 md:h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm">1</div>
+                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-2 md:p-3 bg-gray-50 min-h-[50px] md:min-h-[60px] flex items-center" data-position="1">
+                        <p class="text-gray-400 text-xs md:text-sm text-center w-full">Drop first step here</p>
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
-                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-3 bg-gray-50 min-h-[60px] flex items-center" data-position="2">
-                        <p class="text-gray-400 text-sm text-center w-full">Drop second step here</p>
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="w-6 h-6 md:w-8 md:h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm">2</div>
+                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-2 md:p-3 bg-gray-50 min-h-[50px] md:min-h-[60px] flex items-center" data-position="2">
+                        <p class="text-gray-400 text-xs md:text-sm text-center w-full">Drop second step here</p>
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm">3</div>
-                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-3 bg-gray-50 min-h-[60px] flex items-center" data-position="3">
-                        <p class="text-gray-400 text-sm text-center w-full">Drop third step here</p>
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="w-6 h-6 md:w-8 md:h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm">3</div>
+                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-2 md:p-3 bg-gray-50 min-h-[50px] md:min-h-[60px] flex items-center" data-position="3">
+                        <p class="text-gray-400 text-xs md:text-sm text-center w-full">Drop third step here</p>
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm">4</div>
-                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-3 bg-gray-50 min-h-[60px] flex items-center" data-position="4">
-                        <p class="text-gray-400 text-sm text-center w-full">Drop fourth step here</p>
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="w-6 h-6 md:w-8 md:h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm">4</div>
+                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-2 md:p-3 bg-gray-50 min-h-[50px] md:min-h-[60px] flex items-center" data-position="4">
+                        <p class="text-gray-400 text-xs md:text-sm text-center w-full">Drop fourth step here</p>
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm">5</div>
-                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-3 bg-gray-50 min-h-[60px] flex items-center" data-position="5">
-                        <p class="text-gray-400 text-sm text-center w-full">Drop fifth step here</p>
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="w-6 h-6 md:w-8 md:h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm">5</div>
+                    <div class="drop-zone flex-1 border-2 border-dashed border-gray-300 rounded-lg p-2 md:p-3 bg-gray-50 min-h-[50px] md:min-h-[60px] flex items-center" data-position="5">
+                        <p class="text-gray-400 text-xs md:text-sm text-center w-full">Drop fifth step here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Draggable Items - Bottom on mobile, Right on desktop -->
+            <div class="flex-1 flex flex-col">
+                <h2 class="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-4 text-center">Steps to Arrange:</h2>
+                <div class="flex flex-col gap-2 md:gap-3" id="draggable-container">
+                    <div class="drag-item bg-gradient-to-r from-green-400 to-green-500 text-white p-2 md:p-3 rounded-lg shadow-md" draggable="true" data-step="1">
+                        <p class="font-medium text-xs">Have a clear understanding of the situation</p>
+                    </div>
+                    
+                    <div class="drag-item bg-gradient-to-r from-purple-400 to-purple-500 text-white p-2 md:p-3 rounded-lg shadow-md" draggable="true" data-step="2">
+                        <p class="font-medium text-xs">Identify the stakeholders</p>
+                    </div>
+                    
+                    <div class="drag-item bg-gradient-to-r from-orange-400 to-orange-500 text-white p-2 md:p-3 rounded-lg shadow-md" draggable="true" data-step="3">
+                        <p class="font-medium text-xs">Prioritise the key responsibilities</p>
+                    </div>
+                    
+                    <div class="drag-item bg-gradient-to-r from-red-400 to-red-500 text-white p-2 md:p-3 rounded-lg shadow-md" draggable="true" data-step="4">
+                        <p class="font-medium text-xs">Identify a course of action</p>
+                    </div>
+                    
+                    <div class="drag-item bg-gradient-to-r from-indigo-400 to-indigo-500 text-white p-2 md:p-3 rounded-lg shadow-md" draggable="true" data-step="5">
+                        <p class="font-medium text-xs">Act on it and review</p>
                     </div>
                 </div>
                 
                 <!-- Reset Button -->
-                <div class="text-center mt-3">
-                    <button id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors text-base">
+                <div class="text-center mt-4 md:mt-6">
+                    <button id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-colors text-xs">
                         Reset Activity
                     </button>
-                </div>
-            </div>
-
-            <!-- Draggable Items - Right Side -->
-            <div class="flex-1 flex flex-col">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4 text-center">Steps to Arrange:</h2>
-                <div class="flex flex-col gap-3" id="draggable-container">
-                    <div class="drag-item bg-gradient-to-r from-green-400 to-green-500 text-white p-3 rounded-lg shadow-md" draggable="true" data-step="1">
-                        <p class="font-medium text-base">Have a clear understanding of the situation</p>
-                    </div>
-                    
-                    <div class="drag-item bg-gradient-to-r from-purple-400 to-purple-500 text-white p-3 rounded-lg shadow-md" draggable="true" data-step="2">
-                        <p class="font-medium text-base">Identify the stakeholders</p>
-                    </div>
-                    
-                    <div class="drag-item bg-gradient-to-r from-orange-400 to-orange-500 text-white p-3 rounded-lg shadow-md" draggable="true" data-step="3">
-                        <p class="font-medium text-base">Prioritise the key responsibilities</p>
-                    </div>
-                    
-                    <div class="drag-item bg-gradient-to-r from-red-400 to-red-500 text-white p-3 rounded-lg shadow-md" draggable="true" data-step="4">
-                        <p class="font-medium text-base">Identify a course of action</p>
-                    </div>
-                    
-                    <div class="drag-item bg-gradient-to-r from-indigo-400 to-indigo-500 text-white p-3 rounded-lg shadow-md" draggable="true" data-step="5">
-                        <p class="font-medium text-base">Act on it and review</p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -131,6 +153,9 @@
     <script>
         let draggedElement = null;
         let correctPlacements = 0;
+        let touchStartPos = { x: 0, y: 0 };
+        let isDragging = false;
+        let dragClone = null;
 
         // Randomize the order of draggable items on page load
         function randomizeSteps() {
@@ -152,8 +177,14 @@
 
         // Add drag event listeners to all draggable items
         document.querySelectorAll('.drag-item').forEach(item => {
+            // Mouse events
             item.addEventListener('dragstart', handleDragStart);
             item.addEventListener('dragend', handleDragEnd);
+            
+            // Touch events for mobile
+            item.addEventListener('touchstart', handleTouchStart, { passive: false });
+            item.addEventListener('touchmove', handleTouchMove, { passive: false });
+            item.addEventListener('touchend', handleTouchEnd, { passive: false });
         });
 
         // Add drop event listeners to all drop zones
@@ -164,6 +195,87 @@
             zone.addEventListener('drop', handleDrop);
         });
 
+        // Touch event handlers
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            touchStartPos = { x: touch.clientX, y: touch.clientY };
+            draggedElement = this;
+            isDragging = false;
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!draggedElement) return;
+
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchStartPos.x;
+            const deltaY = touch.clientY - touchStartPos.y;
+
+            // Start dragging if moved enough
+            if (!isDragging && (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10)) {
+                isDragging = true;
+                
+                // Create a clone for visual feedback
+                dragClone = draggedElement.cloneNode(true);
+                dragClone.classList.add('dragging');
+                dragClone.style.left = touch.clientX - draggedElement.offsetWidth / 2 + 'px';
+                dragClone.style.top = touch.clientY - draggedElement.offsetHeight / 2 + 'px';
+                dragClone.style.width = draggedElement.offsetWidth + 'px';
+                document.body.appendChild(dragClone);
+                
+                draggedElement.style.opacity = '0.5';
+            }
+
+            if (isDragging && dragClone) {
+                dragClone.style.left = touch.clientX - draggedElement.offsetWidth / 2 + 'px';
+                dragClone.style.top = touch.clientY - draggedElement.offsetHeight / 2 + 'px';
+                
+                // Check for drop zone hover
+                const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                const dropZone = elementBelow?.closest('.drop-zone');
+                
+                // Remove previous hover states
+                document.querySelectorAll('.drop-zone').forEach(zone => {
+                    zone.classList.remove('drag-over');
+                });
+                
+                // Add hover state to current drop zone
+                if (dropZone) {
+                    dropZone.classList.add('drag-over');
+                }
+            }
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            if (!draggedElement) return;
+
+            if (isDragging && dragClone) {
+                const touch = e.changedTouches[0];
+                const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                const dropZone = elementBelow?.closest('.drop-zone');
+                
+                if (dropZone) {
+                    handleDropLogic(dropZone);
+                }
+                
+                // Clean up
+                document.body.removeChild(dragClone);
+                dragClone = null;
+            }
+
+            // Reset states
+            draggedElement.style.opacity = '1';
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('drag-over');
+            });
+            
+            draggedElement = null;
+            isDragging = false;
+        }
+
+        // Mouse event handlers
         function handleDragStart(e) {
             draggedElement = this;
             this.style.opacity = '0.5';
@@ -190,13 +302,16 @@
         function handleDrop(e) {
             e.preventDefault();
             this.classList.remove('drag-over');
+            handleDropLogic(this);
+        }
 
+        function handleDropLogic(dropZone) {
             if (draggedElement) {
-                const dropPosition = parseInt(this.dataset.position);
+                const dropPosition = parseInt(dropZone.dataset.position);
                 const draggedStep = parseInt(draggedElement.dataset.step);
 
                 // Check if it's already occupied
-                if (this.querySelector('.drag-item')) {
+                if (dropZone.querySelector('.drag-item')) {
                     showFeedback("This position is already filled! Try another spot.", false);
                     return;
                 }
@@ -204,8 +319,8 @@
                 // Check if correct placement
                 if (dropPosition === draggedStep) {
                     // Correct placement
-                    this.innerHTML = '';
-                    this.appendChild(draggedElement);
+                    dropZone.innerHTML = '';
+                    dropZone.appendChild(draggedElement);
                     draggedElement.style.margin = '0';
                     correctPlacements++;
                     
@@ -242,16 +357,33 @@
             document.querySelectorAll('.drag-item').forEach(item => {
                 document.getElementById('draggable-container').appendChild(item);
                 item.style.margin = '';
+                item.style.opacity = '1';
+                
+                // Re-add event listeners for touch support
+                item.addEventListener('touchstart', handleTouchStart, { passive: false });
+                item.addEventListener('touchmove', handleTouchMove, { passive: false });
+                item.addEventListener('touchend', handleTouchEnd, { passive: false });
             });
             
             // Reset all drop zones
             document.querySelectorAll('.drop-zone').forEach(zone => {
                 const position = zone.dataset.position;
-                zone.innerHTML = `<p class="text-gray-400 text-center">Drop the ${getOrdinal(position)} step here</p>`;
+                zone.innerHTML = `<p class="text-gray-400 text-xs md:text-sm text-center">Drop the ${getOrdinal(position)} step here</p>`;
+                zone.classList.remove('drag-over');
             });
             
             // Clear feedback
             document.getElementById('feedback').innerHTML = '';
+            
+            // Clean up any remaining drag clone
+            if (dragClone) {
+                document.body.removeChild(dragClone);
+                dragClone = null;
+            }
+            
+            // Reset drag states
+            draggedElement = null;
+            isDragging = false;
             
             // Randomize the order again
             randomizeSteps();
@@ -262,5 +394,5 @@
             return ordinals[num] || num;
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98302e6a748ece82',t:'MTc1ODUyNzExMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98304311b1b0f8ef',t:'MTc1ODUyNzk1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
