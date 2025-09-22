@@ -93,7 +93,7 @@
         </div>
 
         <!-- Workflow Drop Zones -->
-        <div id="drop-container" class="flex flex-col sm:flex-row justify-center items-center flex-wrap gap-1 sm:gap-4 w-full">
+        <div id="drop-container" class="flex flex-row justify-center items-center flex-wrap gap-1 sm:gap-4 w-full">
             <!-- Drop zones will be populated by JavaScript -->
         </div>
         
@@ -148,7 +148,7 @@
                 // Add an arrow for all but the last step
                 if (index < STEPS_DATA.length - 1) {
                     const arrow = document.createElement('div');
-                    arrow.classList.add('flow-arrow', 'flex');
+                    arrow.classList.add('flow-arrow', 'flex', 'hidden', 'sm:flex');
                     dropContainer.appendChild(arrow);
                 }
             });
@@ -236,11 +236,39 @@
                 });
 
                 item.addEventListener('touchend', (e) => {
-                    e.target.style.opacity = '1';
-                });
+                    const touch = e.changedTouches[0];
+                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+                    
+                    // Re-enable drag functionality after touch ends
+                    if (draggedElement) {
+                        draggedElement.style.opacity = '1';
+                    }
 
-                item.addEventListener('touchmove', (e) => {
-                    e.preventDefault();
+                    if (draggedElement && dropTarget) {
+                        const dropZone = dropTarget.closest('.droppable-item');
+                        if (dropZone) {
+                            if (dropZone.querySelector('.draggable-item')) {
+                                showFeedback("Try again!", false);
+                                return;
+                            }
+                            
+                            if (draggedElement.id === dropZone.dataset.step) {
+                                const placeholder = dropZone.querySelector('span.text-\\[8px\\], span.text-sm');
+                                if (placeholder) {
+                                    placeholder.remove();
+                                }
+                                dropZone.appendChild(draggedElement);
+                                draggedElement.draggable = false;
+                                draggedElement.classList.remove('cursor-grab', 'hover:scale-105');
+                                draggedElement.classList.add('cursor-default');
+                                showFeedback("You are right!", true);
+                                checkCompletion();
+                            } else {
+                                showFeedback("Try again!", false);
+                            }
+                        }
+                    }
+                    draggedElement = null;
                 });
             });
 
@@ -268,7 +296,7 @@
                     }
                     
                     if (droppedItem.id === zone.dataset.step) {
-                        const placeholder = zone.querySelector('span.text-sm, span.text-[8px]');
+                        const placeholder = zone.querySelector('span.text-\\[8px\\], span.text-sm');
                         if (placeholder) {
                             placeholder.remove();
                         }
@@ -280,34 +308,6 @@
                         checkCompletion();
                     } else {
                         showFeedback("Try again!", false);
-                    }
-                });
-                
-                // Touch event listeners for mobile devices
-                zone.addEventListener('touchend', (e) => {
-                    const droppedItem = draggedElement;
-                    const touch = e.changedTouches[0];
-                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-
-                    if (dropTarget && dropTarget.closest('.droppable-item') === zone) {
-                        if (zone.querySelector('.draggable-item')) {
-                            showFeedback("Try again!", false);
-                            return;
-                        }
-                        if (droppedItem.id === zone.dataset.step) {
-                            const placeholder = zone.querySelector('span.text-sm, span.text-[8px]');
-                            if (placeholder) {
-                                placeholder.remove();
-                            }
-                            zone.appendChild(droppedItem);
-                            droppedItem.draggable = false;
-                            droppedItem.classList.remove('cursor-grab', 'hover:scale-105');
-                            droppedItem.classList.add('cursor-default');
-                            showFeedback("You are right!", true);
-                            checkCompletion();
-                        } else {
-                            showFeedback("Try again!", false);
-                        }
                     }
                 });
             });
