@@ -93,10 +93,10 @@
         </div>
 
         <!-- Workflow Drop Zones -->
-        <div id="drop-container" class="flex flex-row justify-center items-center flex-wrap gap-1 sm:gap-4 w-full">
-            <!-- Drop zones will be populated by JavaScript -->
+        <div class="flex flex-col items-center w-full">
+            <div id="drop-container-top-row" class="flex flex-row justify-center items-center flex-wrap gap-1 sm:gap-4 w-full"></div>
+            <div id="drop-container-bottom-row" class="flex flex-row justify-center items-center flex-wrap gap-1 sm:gap-4 w-full mt-4"></div>
         </div>
-        
     </div>
 
     <!-- Floating Feedback Message -->
@@ -119,7 +119,8 @@
             'bg-yellow-500'
         ];
 
-        const dropContainer = document.getElementById('drop-container');
+        const dropContainerTop = document.getElementById('drop-container-top-row');
+        const dropContainerBottom = document.getElementById('drop-container-bottom-row');
         const dragContainer = document.getElementById('drag-container');
         const resetButton = document.getElementById('reset-button');
         const feedbackElement = document.getElementById('feedback');
@@ -136,20 +137,28 @@
 
         // Creates the drop zones as a workflow diagram
         function createDropZones() {
-            dropContainer.innerHTML = '';
+            dropContainerTop.innerHTML = '';
+            dropContainerBottom.innerHTML = '';
             STEPS_DATA.forEach((step, index) => {
                 const dropZone = document.createElement('div');
                 dropZone.classList.add('droppable-item', 'w-16', 'h-16', 'sm:w-48', 'sm:h-24', 'p-1', 'sm:p-2', 'bg-gray-100', 'rounded-lg', 'border-2', 'border-dashed', 'border-gray-300', 'flex', 'items-center', 'justify-center', 'text-center', 'text-gray-500', 'shrink-0');
                 dropZone.dataset.step = step.id;
                 dropZone.innerHTML = `<span class="font-bold text-xs sm:text-xl">${index + 1}.</span> <span class="text-[8px] sm:text-sm ml-1 sm:ml-2">Drop a step here...</span>`;
                 
-                dropContainer.appendChild(dropZone);
-
-                // Add an arrow for all but the last step
-                if (index < STEPS_DATA.length - 1) {
-                    const arrow = document.createElement('div');
-                    arrow.classList.add('flow-arrow', 'flex', 'hidden', 'sm:flex');
-                    dropContainer.appendChild(arrow);
+                if (index < 3) {
+                    dropContainerTop.appendChild(dropZone);
+                    if (index < 2) {
+                        const arrow = document.createElement('div');
+                        arrow.classList.add('flow-arrow', 'flex', 'hidden', 'sm:flex');
+                        dropContainerTop.appendChild(arrow);
+                    }
+                } else {
+                    dropContainerBottom.appendChild(dropZone);
+                    if (index < STEPS_DATA.length - 1) {
+                        const arrow = document.createElement('div');
+                        arrow.classList.add('flow-arrow', 'flex', 'hidden', 'sm:flex');
+                        dropContainerBottom.appendChild(arrow);
+                    }
                 }
             });
         }
