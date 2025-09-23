@@ -277,8 +277,8 @@
                                 if (number) number.remove();
                                 if (placeholder) placeholder.remove();
 
-                                draggedElement.classList.remove('w-20', 'h-16', 'sm:w-[200px]', 'sm:h-24');
-                                draggedElement.classList.add('w-full', 'h-full');
+                                droppedItem.classList.remove('w-20', 'h-16', 'sm:w-[200px]', 'sm:h-24');
+                                droppedItem.classList.add('w-full', 'h-full');
 
                                 dropZone.appendChild(draggedElement);
                                 draggedElement.draggable = false;
